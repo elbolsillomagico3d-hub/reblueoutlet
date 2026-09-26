@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Importar productos — ReBlueOutlet</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Arial,sans-serif;background:#f5f7f8;margin:0;padding:24px;color:#17202a}
+.card{max-width:760px;margin:auto;background:#fff;padding:24px;border-radius:14px;box-shadow:0 4px 18px #0001}
+h1{margin-top:0}.muted{color:#68737d}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button{background:#111827;color:white;border:0;border-radius:9px;padding:11px 16px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+input[type=file]{width:100%;padding:12px;border:1px solid #ccd3d9;border-radius:8px;box-sizing:border-box}
+progress{width:100%;height:20px}.log{margin-top:16px;background:#0f172a;color:#dbeafe;padding:14px;border-radius:10px;max-height:330px;overflow:auto;white-space:pre-wrap;font:13px monospace}
+.ok{color:#147a3d}.err{color:#b42318}.warn{color:#946200}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Importar productos</h1>
+<p class="muted">Importador independiente para los 325 productos del inventario. No modifica SQL ni los archivos existentes.</p>
+<label><strong>1. Selecciona el JSON del inventario</strong></label>
+<input id="file" type="file" accept="application/json,.json">
+<div style="height:14px"></div>
+<div class="row">
+<button id="start" disabled>Importar productos</button>
+<button id="cancel" type="button">Cancelar</button>
+</div>
+<div style="height:16px"></div>
+<progress id="progress" value="0" max="100"></progress>
+<p id="status" class="muted">Esperando archivo…</p>
+<div id="log" class="log">Listo.</div>
+</div>
+<script src="../supabase-config.js"></script>
+<script>
+const { createClient } = supabase;
+const client = createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.publishableKey);
+const $ = id => document.getElementById(id);
+let cancelled = false;
+
+function log(text, cls='') {
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = text;
+  $('log').appendChild(line);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function dataUrlToBlob(dataUrl) {
+  const m = dataUrl.match(/^data:([^;,]+)?(?:;charset=[^;,]+)?;base64,(.+)$/s);
+  if (!m) throw new Error('Foto Base64 no válida');
+  const mime = m[1] || 'image/jpeg';
+  const binary = atob(m[2]);
+  const bytes = new Uint8Array(binary.length);
+  for (let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], {type:mime});
+}
+
+function extensionFromMime(mime) {
+  return ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'}[mime] || 'jpg');
+}
+
+async function importProducts(items) {
+  const sessionResult = await client.auth.getSession();
+  if (sessionResult.error) throw sessionResult.error;
+  if (!sessionResult.data.session) {
+    throw new Error('No hay una sesión iniciada. Entra primero en admin/index.html con tu usuario administrador y después abre este importador.');
+  }
+
+  const { data: existingRows, error: existingError } = await client
+    .from('productos')
+    .select('id,codigo,imagen_url');
+  if (existingError) throw existingError;
+
+  const existing = new Map((existingRows || []).filter(x => x.codigo).map(x => [String(x.codigo), x]));
+  let created=0, updated=0, photos=0, noPhoto=0, errors=0;
+
+  for (let i=0; i<items.length; i++) {
+    if (cancelled) break;
+    const p = items[i] || {};
+    const code = String(p.codigo ?? '').trim();
+    const name = String(p.producto ?? '').trim();
+    if (!code || !name) {
+      errors++; log(`${i+1}/${items.length} — omitido: falta producto o código`, 'err'); continue;
+    }
+
+    try {
+      const old = existing.get(code);
+      const id = old?.id || crypto.randomUUID();
+      let imageUrl = old?.imagen_url || null;
+
+      if (!imageUrl && p.foto) {
+        const blob = dataUrlToBlob(p.foto);
+        const ext = extensionFromMime(blob.type);
+        const path = `${id}.${ext}`;
+        const up = await client.storage.from('product-images').upload(path, blob, {
+          upsert: false,
+          contentType: blob.type || 'image/jpeg'
+        });
+        if (up.error) throw up.error;
+        imageUrl = client.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+        photos++;
+      } else if (!p.foto) {
+        noPhoto++;
+      }
+
+      const row = {
+        id,
+        producto: name,
+        codigo: code,
+        stock: Number(p.stock || 0),
+        precio_venta: Number(p.precioVenta || 0),
+        imagen_url: imageUrl,
+        visible: true
+      };
+
+      let result;
+      if (old) {
+        result = await client.from('productos').update(row).eq('id', old.id);
+        updated++;
+      } else {
+        result = await client.from('productos').insert(row);
+        existing.set(code, {id, codigo:code, imagen_url:imageUrl});
+        created++;
+      }
+      if (result.error) throw result.error;
+      log(`${i+1}/${items.length} — ${name} (${code}) ✓`, 'ok');
+    } catch (e) {
+      errors++;
+      log(`${i+1}/${items.length} — ${name || code} ✗ ${e.message || e}`, 'err');
+    }
+    $('progress').value = Math.round(((i+1)/items.length)*100);
+    $('status').textContent = `${i+1} de ${items.length} procesados · ${created} nuevos · ${updated} actualizados · ${photos} fotos subidas · ${errors} errores`;
+  }
+
+  if (cancelled) {
+    $('status').textContent = 'Importación cancelada.';
+    log('IMPORTACIÓN CANCELADA', 'warn');
+  } else {
+    $('status').textContent = `Terminado: ${created} nuevos, ${updated} actualizados, ${photos} fotos subidas, ${noPhoto} sin foto, ${errors} errores.`;
+    log('IMPORTACIÓN TERMINADA', 'ok');
+  }
+}
+
+$('file').addEventListener('change', () => {
+  const f = $('file').files[0];
+  $('start').disabled = !f;
+  $('status').textContent = f ? `Archivo seleccionado: ${f.name}` : 'Esperando archivo…';
+});
+
+$('cancel').addEventListener('click', () => { cancelled = true; });
+
+$('start').addEventListener('click', async () => {
+  const f = $('file').files[0];
+  if (!f) return;
+  $('start').disabled = true;
+  $('cancel').disabled = false;
+  cancelled = false;
+  $('log').textContent = '';
+  $('progress').value = 0;
+  try {
+    $('status').textContent = 'Leyendo JSON…';
+    const json = JSON.parse(await f.text());
+    const items = Array.isArray(json) ? json : json.productos;
+    if (!Array.isArray(items) || !items.length) throw new Error('El JSON no contiene un array de productos.');
+    log(`Encontrados ${items.length} productos.`);
+    await importProducts(items);
+  } catch (e) {
+    $('status').textContent = 'Error.';
+    log(`ERROR: ${e.message || e}`, 'err');
+  } finally {
+    $('start').disabled = false;
+  }
+});
+</script>
+</body>
+</html>

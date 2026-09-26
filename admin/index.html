@@ -1,1 +1,1124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReBlueOutlet · Administración</title>
 
+<style>
+:root{
+  --bg:#f5f7fb;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --ok:#15803d;
+  --danger:#b91c1c;
+  --accent:#111827
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+
+.wrap{
+  max-width:1200px;
+  margin:auto;
+  padding:20px
+}
+
+.top{
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:5
+}
+
+.top .wrap{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px
+}
+
+.brand{font-weight:900}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:11px 14px;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  background:var(--accent);
+  color:#fff
+}
+
+button.secondary{
+  background:#fff;
+  color:var(--text);
+  border:1px solid var(--line)
+}
+
+button.danger{
+  background:var(--danger)
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed
+}
+
+.login,.panel{
+  max-width:1100px;
+  margin:28px auto
+}
+
+.login{
+  max-width:430px
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 2px 10px rgba(17,24,39,.04)
+}
+
+.h{
+  font-size:1.8rem;
+  font-weight:900;
+  margin:0 0 8px
+}
+
+.muted{
+  color:var(--muted)
+}
+
+label{
+  display:block;
+  font-weight:750;
+  margin:14px 0 7px
+}
+
+input,textarea,select{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:11px;
+  font:inherit;
+  background:#fff
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical
+}
+
+.formgrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px
+}
+
+.full{
+  grid-column:1/-1
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap
+}
+
+.msg{
+  margin-top:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#f3f4f6
+}
+
+.msg.error{
+  color:var(--danger);
+  background:#fee2e2
+}
+
+.msg.ok{
+  color:var(--ok);
+  background:#dcfce7
+}
+
+.products{
+  margin-top:20px
+}
+
+.productrow{
+  display:grid;
+  grid-template-columns:70px 1fr auto auto;
+  gap:12px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid var(--line)
+}
+
+.thumb{
+  width:70px;
+  height:70px;
+  border-radius:10px;
+  background:#eef1f5;
+  object-fit:contain
+}
+
+.badge{
+  font-size:.8rem;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#f3f4f6
+}
+
+.hidden{
+  display:none!important
+}
+
+.preview{
+  width:120px;
+  height:120px;
+  object-fit:contain;
+  background:#eef1f5;
+  border-radius:10px;
+  margin-top:8px
+}
+
+@media(max-width:700px){
+  .formgrid{
+    grid-template-columns:1fr
+  }
+
+  .productrow{
+    grid-template-columns:55px 1fr
+  }
+
+  .productrow .row{
+    grid-column:1/-1
+  }
+
+  .thumb{
+    width:55px;
+    height:55px
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+<div class="wrap">
+
+<div>
+<div class="brand">ReBlueOutlet · Administración</div>
+<div id="who" class="muted"></div>
+</div>
+
+<div class="actions">
+<button id="newBtn" class="secondary hidden">
+Nuevo producto
+</button>
+
+<button id="logout" class="secondary hidden">
+Cerrar sesión
+</button>
+</div>
+
+</div>
+</header>
+
+
+<main class="wrap">
+
+<section id="login" class="login card">
+
+<h1 class="h">
+Acceso administrador
+</h1>
+
+<p class="muted">
+Entra con una de las cuentas creadas en Supabase.
+</p>
+
+<form id="loginForm">
+
+<label>
+Correo
+</label>
+
+<input
+id="email"
+type="email"
+required
+autocomplete="username"
+>
+
+<label>
+Contraseña
+</label>
+
+<input
+id="password"
+type="password"
+required
+autocomplete="current-password"
+>
+
+<div class="row" style="margin-top:16px">
+
+<button>
+Entrar
+</button>
+
+</div>
+
+<div id="loginMsg"></div>
+
+</form>
+
+</section>
+
+
+<section id="panel" class="panel hidden">
+
+<div id="editor" class="card">
+
+<h2 class="h" id="editorTitle">
+Nuevo producto
+</h2>
+
+<form id="productForm">
+
+<input
+id="productId"
+type="hidden"
+>
+
+<div class="formgrid">
+
+<div>
+<label>Producto *</label>
+
+<input
+id="producto"
+required
+>
+</div>
+
+
+<div>
+<label>Código / referencia</label>
+
+<input
+id="codigo"
+>
+</div>
+
+
+<div>
+<label>Precio de venta (€) *</label>
+
+<input
+id="precio"
+type="number"
+step="0.01"
+min="0"
+required
+>
+</div>
+
+
+<div>
+<label>Stock</label>
+
+<input
+id="stockInput"
+type="number"
+step="1"
+min="0"
+value="0"
+>
+</div>
+
+
+<div>
+<label>Categoría</label>
+
+<input
+id="categoria"
+>
+</div>
+
+
+<div>
+<label>Visible para clientes</label>
+
+<select id="visible">
+
+<option value="true">
+Sí
+</option>
+
+<option value="false">
+No
+</option>
+
+</select>
+
+</div>
+
+
+<div class="full">
+
+<label>
+Descripción
+</label>
+
+<textarea id="descripcion"></textarea>
+
+</div>
+
+
+<div class="full">
+
+<label>
+Foto
+</label>
+
+<input
+id="foto"
+type="file"
+accept="image/*"
+>
+
+<div class="muted">
+La foto se guardará en Supabase Storage.
+</div>
+
+<img
+id="preview"
+class="preview hidden"
+>
+
+</div>
+
+</div>
+
+
+<div class="row" style="margin-top:16px">
+
+<button id="saveBtn">
+Guardar producto
+</button>
+
+<button
+type="button"
+id="cancelBtn"
+class="secondary"
+>
+Cancelar
+</button>
+
+</div>
+
+<div id="formMsg"></div>
+
+</form>
+
+</div>
+
+
+<div class="products card">
+
+<div
+class="row"
+style="justify-content:space-between"
+>
+
+<div>
+
+<h2 class="h">
+Productos
+</h2>
+
+<div
+id="count"
+class="muted"
+>
+Cargando…
+</div>
+
+</div>
+
+<input
+id="filter"
+placeholder="Buscar producto…"
+style="max-width:300px"
+>
+
+</div>
+
+<div id="list"></div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../supabase-config.js"></script>
+
+
+<script>
+
+(() => {
+
+const {createClient} = window.supabase;
+
+const client = createClient(
+  SUPABASE_CONFIG.url,
+  SUPABASE_CONFIG.publishableKey
+);
+
+const $ = id => document.getElementById(id);
+
+let products = [];
+
+let currentImageUrl = "";
+
+
+function msg(el,text,type=""){
+
+  el.className = "msg " + type;
+
+  el.textContent = text;
+
+  if(!text){
+    el.className = "";
+  }
+
+}
+
+
+async function load(){
+
+  const {data,error} = await client
+    .from("productos")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+
+    msg(
+      $("formMsg"),
+      "No se pudieron cargar los productos: " + error.message,
+      "error"
+    );
+
+    return;
+  }
+
+  products = data || [];
+
+  renderList();
+
+}
+
+
+function renderList(){
+
+  const q = $("filter")
+    .value
+    .trim()
+    .toLowerCase();
+
+  const list = products.filter(p =>
+    `${p.producto || ""} ${p.codigo || ""}`
+    .toLowerCase()
+    .includes(q)
+  );
+
+  $("count").textContent =
+    `${list.length} producto${list.length === 1 ? "" : "s"}`;
+
+  $("list").innerHTML = list.map(p => `
+
+    <div class="productrow">
+
+      <div>
+
+        ${
+          p.imagen_url
+          ?
+          `<img
+            class="thumb"
+            src="${esc(p.imagen_url)}"
+          >`
+          :
+          `<div class="thumb"></div>`
+        }
+
+      </div>
+
+
+      <div>
+
+        <strong>
+          ${esc(p.producto)}
+        </strong>
+
+        <div class="muted">
+
+          Ref.
+          ${esc(p.codigo || "—")}
+
+          ·
+
+          ${Number(p.precio_venta || 0).toFixed(2)} €
+
+          ·
+
+          Stock:
+          ${Number(p.stock || 0)}
+
+        </div>
+
+      </div>
+
+
+      <div>
+
+        <span class="badge">
+
+          ${p.visible ? "Publicado" : "Oculto"}
+
+        </span>
+
+      </div>
+
+
+      <div class="row">
+
+        <button
+          class="secondary"
+          onclick="window.editProduct('${p.id}')"
+        >
+          Editar
+        </button>
+
+        <button
+          class="danger"
+          onclick="window.deleteProduct('${p.id}')"
+        >
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+
+  `).join("") ||
+
+  '<p class="muted">No hay productos.</p>';
+
+}
+
+
+function esc(v){
+
+  return String(v ?? "").replace(
+    /[&<>"']/g,
+    c => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[c])
+  );
+
+}
+
+
+function reset(){
+
+  $("productForm").reset();
+
+  $("productId").value = "";
+
+  $("stockInput").value = "0";
+
+  $("visible").value = "true";
+
+  $("editorTitle").textContent =
+    "Nuevo producto";
+
+  currentImageUrl = "";
+
+  $("preview").src = "";
+
+  $("preview").classList.add("hidden");
+
+  msg($("formMsg"),"");
+
+}
+
+
+function edit(p){
+
+  $("productId").value = p.id;
+
+  $("producto").value = p.producto || "";
+
+  $("codigo").value = p.codigo || "";
+
+  $("precio").value = p.precio_venta ?? 0;
+
+  $("stockInput").value = p.stock ?? 0;
+
+  $("categoria").value = p.categoria || "";
+
+  $("visible").value = String(!!p.visible);
+
+  $("descripcion").value = p.descripcion || "";
+
+  currentImageUrl = p.imagen_url || "";
+
+  $("editorTitle").textContent =
+    "Editar producto";
+
+  if(currentImageUrl){
+
+    $("preview").src = currentImageUrl;
+
+    $("preview").classList.remove("hidden");
+
+  }else{
+
+    $("preview").classList.add("hidden");
+
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+window.editProduct = id => {
+
+  const p = products.find(x => x.id === id);
+
+  if(p) edit(p);
+
+};
+
+
+window.deleteProduct = async id => {
+
+  const p = products.find(x => x.id === id);
+
+  if(
+    !p ||
+    !confirm(`¿Eliminar "${p.producto}"?`)
+  ){
+    return;
+  }
+
+  const {error} = await client
+    .from("productos")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    alert(
+      "No se pudo eliminar: " +
+      error.message
+    );
+
+    return;
+  }
+
+  if(p.imagen_url){
+
+    const path =
+      p.imagen_url.split(
+        "/product-images/"
+      )[1];
+
+    if(path){
+
+      await client.storage
+        .from("product-images")
+        .remove([path]);
+
+    }
+
+  }
+
+  await load();
+
+  reset();
+
+};
+
+
+$("loginForm").addEventListener(
+  "submit",
+  async e => {
+
+    e.preventDefault();
+
+    msg($("loginMsg"),"");
+
+    const {error} =
+      await client.auth.signInWithPassword({
+
+        email:
+          $("email").value.trim(),
+
+        password:
+          $("password").value
+
+      });
+
+    if(error){
+
+      msg(
+        $("loginMsg"),
+        error.message,
+        "error"
+      );
+
+      return;
+    }
+
+    await showApp();
+
+  }
+);
+
+
+$("logout").onclick = async () => {
+
+  await client.auth.signOut();
+
+  location.reload();
+
+};
+
+
+$("newBtn").onclick = reset;
+
+$("cancelBtn").onclick = reset;
+
+$("filter").addEventListener(
+  "input",
+  renderList
+);
+
+
+$("foto").addEventListener(
+  "change",
+  () => {
+
+    const f =
+      $("foto").files[0];
+
+    if(f){
+
+      $("preview").src =
+        URL.createObjectURL(f);
+
+      $("preview")
+        .classList
+        .remove("hidden");
+
+    }
+
+  }
+);
+
+
+$("productForm").addEventListener(
+  "submit",
+  async e => {
+
+    e.preventDefault();
+
+    const btn = $("saveBtn");
+
+    btn.disabled = true;
+
+    msg(
+      $("formMsg"),
+      "Guardando…"
+    );
+
+    try{
+
+      let imageUrl =
+        currentImageUrl;
+
+      const file =
+        $("foto").files[0];
+
+      const id =
+        $("productId").value ||
+        crypto.randomUUID();
+
+
+      if(file){
+
+        if(
+          file.size >
+          10 * 1024 * 1024
+        ){
+
+          throw new Error(
+            "La imagen supera 10 MB."
+          );
+
+        }
+
+
+        const ext =
+          (
+            file.name
+              .split(".")
+              .pop() ||
+            "jpg"
+          )
+          .toLowerCase()
+          .replace(
+            /[^a-z0-9]/g,
+            ""
+          ) ||
+          "jpg";
+
+
+        const path =
+          `${id}-${Date.now()}.${ext}`;
+
+
+        const up =
+          await client.storage
+            .from("product-images")
+            .upload(
+              path,
+              file,
+              {
+                upsert:false,
+                contentType:file.type
+              }
+            );
+
+
+        if(up.error){
+          throw up.error;
+        }
+
+
+        imageUrl =
+          client.storage
+            .from("product-images")
+            .getPublicUrl(path)
+            .data
+            .publicUrl;
+
+      }
+
+
+      const row = {
+
+        id,
+
+        producto:
+          $("producto")
+            .value
+            .trim(),
+
+        codigo:
+          $("codigo")
+            .value
+            .trim() ||
+          null,
+
+        descripcion:
+          $("descripcion")
+            .value
+            .trim() ||
+          null,
+
+        categoria:
+          $("categoria")
+            .value
+            .trim() ||
+          null,
+
+        stock:
+          Number(
+            $("stockInput")
+              .value || 0
+          ),
+
+        precio_venta:
+          Number(
+            $("precio")
+              .value || 0
+          ),
+
+        imagen_url:
+          imageUrl ||
+          null,
+
+        visible:
+          $("visible")
+            .value === "true"
+
+      };
+
+
+      const existing =
+        $("productId").value;
+
+
+      const result =
+        existing
+
+        ?
+
+        await client
+          .from("productos")
+          .update(row)
+          .eq("id",existing)
+
+        :
+
+        await client
+          .from("productos")
+          .insert(row);
+
+
+      if(result.error){
+        throw result.error;
+      }
+
+
+      msg(
+        $("formMsg"),
+        "Producto guardado correctamente.",
+        "ok"
+      );
+
+
+      await load();
+
+      setTimeout(
+        reset,
+        600
+      );
+
+
+    }catch(err){
+
+      console.error(err);
+
+      msg(
+        $("formMsg"),
+        err.message ||
+        String(err),
+        "error"
+      );
+
+    }finally{
+
+      btn.disabled = false;
+
+    }
+
+  }
+);
+
+
+async function showApp(){
+
+  const {
+    data:{user}
+  } =
+    await client.auth.getUser();
+
+  if(!user){
+    return;
+  }
+
+
+  $("login")
+    .classList
+    .add("hidden");
+
+  $("panel")
+    .classList
+    .remove("hidden");
+
+  $("logout")
+    .classList
+    .remove("hidden");
+
+  $("newBtn")
+    .classList
+    .remove("hidden");
+
+  $("who").textContent =
+    user.email || "";
+
+  await load();
+
+}
+
+
+client.auth
+  .getSession()
+  .then(({data}) => {
+
+    if(data.session){
+
+      showApp();
+
+    }
+
+  });
+
+
+})();
+
+</script>
+
+</body>
+</html>

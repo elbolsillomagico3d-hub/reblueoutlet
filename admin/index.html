@@ -17,7 +17,9 @@
   --accent:#111827
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box
+}
 
 body{
   margin:0;
@@ -47,7 +49,9 @@ body{
   gap:12px
 }
 
-.brand{font-weight:900}
+.brand{
+  font-weight:900
+}
 
 .actions{
   display:flex;
@@ -76,12 +80,18 @@ button.danger{
   background:var(--danger)
 }
 
+button.scan{
+  background:#111827;
+  white-space:nowrap
+}
+
 button:disabled{
   opacity:.5;
   cursor:not-allowed
 }
 
-.login,.panel{
+.login,
+.panel{
   max-width:1100px;
   margin:28px auto
 }
@@ -114,7 +124,9 @@ label{
   margin:14px 0 7px
 }
 
-input,textarea,select{
+input,
+textarea,
+select{
   width:100%;
   border:1px solid var(--line);
   border-radius:10px;
@@ -143,6 +155,13 @@ textarea{
   gap:8px;
   align-items:center;
   flex-wrap:wrap
+}
+
+/* Campo código + botón escáner */
+.codebox{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px
 }
 
 .msg{
@@ -203,7 +222,88 @@ textarea{
   margin-top:8px
 }
 
+/* Ventana del escáner */
+.scanner-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px
+}
+
+.scanner-box{
+  width:min(600px,100%);
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  position:relative
+}
+
+.scanner-header{
+  padding:15px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid var(--line)
+}
+
+.scanner-title{
+  font-weight:900
+}
+
+.scanner-video-wrap{
+  position:relative;
+  background:#000;
+  aspect-ratio:4/3;
+  overflow:hidden
+}
+
+#scannerVideo{
+  width:100%;
+  height:100%;
+  object-fit:cover
+}
+
+.scanner-frame{
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:30%;
+  height:40%;
+  border:3px solid #fff;
+  border-radius:12px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.25);
+  pointer-events:none
+}
+
+.scanner-line{
+  position:absolute;
+  left:12%;
+  right:12%;
+  top:50%;
+  height:2px;
+  background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,.8)
+}
+
+.scanner-info{
+  padding:14px 18px;
+  color:var(--muted);
+  font-size:.92rem
+}
+
+.scanner-actions{
+  padding:0 18px 18px;
+  display:flex;
+  gap:8px
+}
+
 @media(max-width:700px){
+
   .formgrid{
     grid-template-columns:1fr
   }
@@ -220,6 +320,14 @@ textarea{
     width:55px;
     height:55px
   }
+
+  .codebox{
+    grid-template-columns:1fr
+  }
+
+  .codebox button{
+    width:100%
+  }
 }
 </style>
 </head>
@@ -235,13 +343,19 @@ textarea{
 </div>
 
 <div class="actions">
-<button id="newBtn" class="secondary hidden">
-Nuevo producto
+
+<button
+  id="newBtn"
+  class="secondary hidden">
+  Nuevo producto
 </button>
 
-<button id="logout" class="secondary hidden">
-Cerrar sesión
+<button
+  id="logout"
+  class="secondary hidden">
+  Cerrar sesión
 </button>
+
 </div>
 
 </div>
@@ -317,26 +431,59 @@ type="hidden"
 <div class="formgrid">
 
 <div>
-<label>Producto *</label>
+
+<label>
+Producto *
+</label>
 
 <input
 id="producto"
 required
 >
+
 </div>
 
 
 <div>
-<label>Código / referencia</label>
+
+<label>
+Código / referencia
+</label>
+
+<div class="codebox">
 
 <input
 id="codigo"
+placeholder="Ej.: 8431234567890"
+inputmode="numeric"
+autocomplete="off"
 >
+
+<button
+type="button"
+id="scanBtn"
+class="scan"
+>
+📷 Escanear
+</button>
+
+</div>
+
+<div
+class="muted"
+style="margin-top:6px"
+>
+Puedes escribirlo a mano o escanear el código de barras con la cámara.
+</div>
+
 </div>
 
 
 <div>
-<label>Precio de venta (€) *</label>
+
+<label>
+Precio de venta (€) *
+</label>
 
 <input
 id="precio"
@@ -345,11 +492,15 @@ step="0.01"
 min="0"
 required
 >
+
 </div>
 
 
 <div>
-<label>Stock</label>
+
+<label>
+Stock
+</label>
 
 <input
 id="stockInput"
@@ -358,20 +509,28 @@ step="1"
 min="0"
 value="0"
 >
+
 </div>
 
 
 <div>
-<label>Categoría</label>
+
+<label>
+Categoría
+</label>
 
 <input
 id="categoria"
 >
+
 </div>
 
 
 <div>
-<label>Visible para clientes</label>
+
+<label>
+Visible para clientes
+</label>
 
 <select id="visible">
 
@@ -458,7 +617,7 @@ style="justify-content:space-between"
 <div>
 
 <h2 class="h">
-Productos
+Tus productos
 </h2>
 
 <div
@@ -487,6 +646,73 @@ style="max-width:300px"
 </main>
 
 
+<!-- VENTANA DEL ESCÁNER -->
+
+<div
+id="scannerOverlay"
+class="scanner-overlay hidden"
+>
+
+<div class="scanner-box">
+
+<div class="scanner-header">
+
+<div class="scanner-title">
+Escanear código de barras
+</div>
+
+<button
+type="button"
+id="closeScanner"
+class="secondary"
+>
+Cerrar
+</button>
+
+</div>
+
+
+<div class="scanner-video-wrap">
+
+<video
+id="scannerVideo"
+autoplay
+muted
+playsinline
+></video>
+
+<div class="scanner-frame"></div>
+
+<div class="scanner-line"></div>
+
+</div>
+
+
+<div
+id="scannerMessage"
+class="scanner-info"
+>
+Apunta la cámara al código de barras.
+</div>
+
+
+<div class="scanner-actions">
+
+<button
+type="button"
+id="stopScanner"
+class="secondary"
+>
+Cancelar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="../supabase-config.js"></script>
@@ -509,6 +735,14 @@ let products = [];
 
 let currentImageUrl = "";
 
+let scannerStream = null;
+
+let scannerRunning = false;
+
+
+/* =========================
+   MENSAJES
+========================= */
 
 function msg(el,text,type=""){
 
@@ -523,6 +757,10 @@ function msg(el,text,type=""){
 }
 
 
+/* =========================
+   CARGAR PRODUCTOS
+========================= */
+
 async function load(){
 
   const {data,error} = await client
@@ -534,7 +772,8 @@ async function load(){
 
     msg(
       $("formMsg"),
-      "No se pudieron cargar los productos: " + error.message,
+      "No se pudieron cargar los productos: " +
+      error.message,
       "error"
     );
 
@@ -547,6 +786,10 @@ async function load(){
 
 }
 
+
+/* =========================
+   LISTADO
+========================= */
 
 function renderList(){
 
@@ -576,6 +819,7 @@ function renderList(){
           `<img
             class="thumb"
             src="${esc(p.imagen_url)}"
+            alt=""
           >`
           :
           `<div class="thumb"></div>`
@@ -647,6 +891,10 @@ function renderList(){
 }
 
 
+/* =========================
+   ESCAPAR TEXTO
+========================= */
+
 function esc(v){
 
   return String(v ?? "").replace(
@@ -662,6 +910,10 @@ function esc(v){
 
 }
 
+
+/* =========================
+   REINICIAR FORMULARIO
+========================= */
 
 function reset(){
 
@@ -687,38 +939,55 @@ function reset(){
 }
 
 
+/* =========================
+   EDITAR PRODUCTO
+========================= */
+
 function edit(p){
 
   $("productId").value = p.id;
 
-  $("producto").value = p.producto || "";
+  $("producto").value =
+    p.producto || "";
 
-  $("codigo").value = p.codigo || "";
+  $("codigo").value =
+    p.codigo || "";
 
-  $("precio").value = p.precio_venta ?? 0;
+  $("precio").value =
+    p.precio_venta ?? 0;
 
-  $("stockInput").value = p.stock ?? 0;
+  $("stockInput").value =
+    p.stock ?? 0;
 
-  $("categoria").value = p.categoria || "";
+  $("categoria").value =
+    p.categoria || "";
 
-  $("visible").value = String(!!p.visible);
+  $("visible").value =
+    String(!!p.visible);
 
-  $("descripcion").value = p.descripcion || "";
+  $("descripcion").value =
+    p.descripcion || "";
 
-  currentImageUrl = p.imagen_url || "";
+  currentImageUrl =
+    p.imagen_url || "";
 
   $("editorTitle").textContent =
     "Editar producto";
 
   if(currentImageUrl){
 
-    $("preview").src = currentImageUrl;
+    $("preview").src =
+      currentImageUrl;
 
-    $("preview").classList.remove("hidden");
+    $("preview")
+      .classList
+      .remove("hidden");
 
   }else{
 
-    $("preview").classList.add("hidden");
+    $("preview")
+      .classList
+      .add("hidden");
 
   }
 
@@ -732,28 +1001,39 @@ function edit(p){
 
 window.editProduct = id => {
 
-  const p = products.find(x => x.id === id);
+  const p =
+    products.find(x => x.id === id);
 
-  if(p) edit(p);
+  if(p){
+    edit(p);
+  }
 
 };
 
 
+/* =========================
+   ELIMINAR PRODUCTO
+========================= */
+
 window.deleteProduct = async id => {
 
-  const p = products.find(x => x.id === id);
+  const p =
+    products.find(x => x.id === id);
 
   if(
     !p ||
-    !confirm(`¿Eliminar "${p.producto}"?`)
+    !confirm(
+      `¿Eliminar "${p.producto}"?`
+    )
   ){
     return;
   }
 
-  const {error} = await client
-    .from("productos")
-    .delete()
-    .eq("id",id);
+  const {error} =
+    await client
+      .from("productos")
+      .delete()
+      .eq("id",id);
 
   if(error){
 
@@ -789,24 +1069,35 @@ window.deleteProduct = async id => {
 };
 
 
+/* =========================
+   LOGIN
+========================= */
+
 $("loginForm").addEventListener(
   "submit",
   async e => {
 
     e.preventDefault();
 
-    msg($("loginMsg"),"");
+    msg(
+      $("loginMsg"),
+      ""
+    );
 
     const {error} =
-      await client.auth.signInWithPassword({
+      await client.auth
+        .signInWithPassword({
 
-        email:
-          $("email").value.trim(),
+          email:
+            $("email")
+              .value
+              .trim(),
 
-        password:
-          $("password").value
+          password:
+            $("password")
+              .value
 
-      });
+        });
 
     if(error){
 
@@ -825,24 +1116,37 @@ $("loginForm").addEventListener(
 );
 
 
-$("logout").onclick = async () => {
+/* =========================
+   CERRAR SESIÓN
+========================= */
 
-  await client.auth.signOut();
+$("logout").onclick =
+  async () => {
 
-  location.reload();
+    await client.auth.signOut();
 
-};
+    location.reload();
+
+  };
 
 
-$("newBtn").onclick = reset;
+$("newBtn").onclick =
+  reset;
 
-$("cancelBtn").onclick = reset;
+
+$("cancelBtn").onclick =
+  reset;
+
 
 $("filter").addEventListener(
   "input",
   renderList
 );
 
+
+/* =========================
+   PREVISUALIZAR FOTO
+========================= */
 
 $("foto").addEventListener(
   "change",
@@ -866,13 +1170,251 @@ $("foto").addEventListener(
 );
 
 
+/* =========================
+   ESCÁNER DE CÓDIGOS
+========================= */
+
+async function startScanner(){
+
+  const overlay =
+    $("scannerOverlay");
+
+  const video =
+    $("scannerVideo");
+
+  const message =
+    $("scannerMessage");
+
+
+  /* Comprobar BarcodeDetector */
+
+  if(!("BarcodeDetector" in window)){
+
+    message.textContent =
+      "Este navegador no admite el escáner automático. Puedes escribir el código manualmente en el campo.";
+
+    overlay.classList
+      .remove("hidden");
+
+    return;
+  }
+
+
+  try{
+
+    const supported =
+      await BarcodeDetector
+        .getSupportedFormats();
+
+
+    const formats = [
+      "ean_13",
+      "ean_8",
+      "upc_a",
+      "upc_e",
+      "code_128",
+      "code_39",
+      "code_93",
+      "itf"
+    ].filter(
+      x => supported.includes(x)
+    );
+
+
+    if(!formats.length){
+
+      message.textContent =
+        "Este navegador no dispone de formatos de códigos compatibles.";
+
+      overlay.classList
+        .remove("hidden");
+
+      return;
+    }
+
+
+    const detector =
+      new BarcodeDetector({
+        formats
+      });
+
+
+    scannerStream =
+      await navigator
+        .mediaDevices
+        .getUserMedia({
+
+          video:{
+            facingMode:{
+              ideal:"environment"
+            },
+            width:{
+              ideal:1280
+            },
+            height:{
+              ideal:720
+            }
+          },
+
+          audio:false
+
+        });
+
+
+    video.srcObject =
+      scannerStream;
+
+    overlay.classList
+      .remove("hidden");
+
+    scannerRunning = true;
+
+    message.textContent =
+      "Apunta la cámara al código de barras.";
+
+
+    scanLoop(detector);
+
+  }catch(error){
+
+    console.error(error);
+
+    overlay.classList
+      .remove("hidden");
+
+    message.textContent =
+      "No se pudo abrir la cámara. Comprueba que has permitido el acceso a la cámara.";
+
+  }
+
+}
+
+
+async function scanLoop(detector){
+
+  if(!scannerRunning){
+    return;
+  }
+
+
+  const video =
+    $("scannerVideo");
+
+
+  try{
+
+    if(video.readyState >= 2){
+
+      const codes =
+        await detector.detect(video);
+
+
+      if(codes.length){
+
+        const value =
+          codes[0].rawValue;
+
+
+        if(value){
+
+          $("codigo").value =
+            value;
+
+          $("scannerMessage")
+            .textContent =
+            "Código detectado: " +
+            value;
+
+
+          setTimeout(
+            stopScanner,
+            500
+          );
+
+          return;
+        }
+
+      }
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Error leyendo código:",
+      error
+    );
+
+  }
+
+
+  if(scannerRunning){
+
+    requestAnimationFrame(
+      () => scanLoop(detector)
+    );
+
+  }
+
+}
+
+
+/* =========================
+   CERRAR ESCÁNER
+========================= */
+
+function stopScanner(){
+
+  scannerRunning = false;
+
+
+  if(scannerStream){
+
+    scannerStream
+      .getTracks()
+      .forEach(
+        track => track.stop()
+      );
+
+    scannerStream = null;
+
+  }
+
+
+  $("scannerVideo").srcObject =
+    null;
+
+  $("scannerOverlay")
+    .classList
+    .add("hidden");
+
+}
+
+
+$("scanBtn").onclick =
+  startScanner;
+
+
+$("closeScanner").onclick =
+  stopScanner;
+
+
+$("stopScanner").onclick =
+  stopScanner;
+
+
+/* =========================
+   GUARDAR PRODUCTO
+========================= */
+
 $("productForm").addEventListener(
   "submit",
   async e => {
 
     e.preventDefault();
 
-    const btn = $("saveBtn");
+    const btn =
+      $("saveBtn");
 
     btn.disabled = true;
 
@@ -881,18 +1423,23 @@ $("productForm").addEventListener(
       "Guardando…"
     );
 
+
     try{
 
       let imageUrl =
         currentImageUrl;
 
+
       const file =
         $("foto").files[0];
+
 
       const id =
         $("productId").value ||
         crypto.randomUUID();
 
+
+      /* SUBIR IMAGEN */
 
       if(file){
 
@@ -954,6 +1501,8 @@ $("productForm").addEventListener(
 
       }
 
+
+      /* DATOS DEL PRODUCTO */
 
       const row = {
 
@@ -1040,6 +1589,7 @@ $("productForm").addEventListener(
 
       await load();
 
+
       setTimeout(
         reset,
         600
@@ -1067,12 +1617,17 @@ $("productForm").addEventListener(
 );
 
 
+/* =========================
+   MOSTRAR APP
+========================= */
+
 async function showApp(){
 
   const {
     data:{user}
   } =
     await client.auth.getUser();
+
 
   if(!user){
     return;
@@ -1098,10 +1653,15 @@ async function showApp(){
   $("who").textContent =
     user.email || "";
 
+
   await load();
 
 }
 
+
+/* =========================
+   SESIÓN EXISTENTE
+========================= */
 
 client.auth
   .getSession()
@@ -1117,7 +1677,6 @@ client.auth
 
 
 })();
-
 </script>
 
 </body>

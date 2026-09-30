@@ -6,7 +6,6 @@
 <meta name="description" content="Catálogo online de ReBlueOutlet">
 <meta name="theme-color" content="#111827">
 <title>ReBlueOutlet · Catálogo</title>
-
 <style>
 :root{
   --bg:#f5f7fb;
@@ -17,18 +16,15 @@
   --ok:#15803d;
   --danger:#b91c1c
 }
-
 *{
   box-sizing:border-box
 }
-
 body{
   margin:0;
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--bg);
   color:var(--text)
 }
-
 .top{
   position:sticky;
   top:0;
@@ -37,20 +33,17 @@ body{
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line)
 }
-
 .wrap{
   max-width:1280px;
   margin:auto;
   padding:0 20px
 }
-
 .nav{
   min-height:68px;
   display:flex;
   align-items:center;
   justify-content:space-between
 }
-
 .brand{
   display:flex;
   align-items:center;
@@ -58,35 +51,29 @@ body{
   font-weight:900;
   font-size:1.25rem
 }
-
 .brand img{
   height:42px;
   width:auto;
   display:block;
   border-radius:50%
 }
-
 .brand span{
   color:#6b7280
 }
-
 .hero{
   padding:42px 0 24px
 }
-
 .hero h1{
   font-size:clamp(2rem,5vw,3.5rem);
   line-height:1;
   margin:0 0 12px;
   letter-spacing:-.055em
 }
-
 .hero p{
   margin:0;
   color:var(--muted);
   font-size:1.05rem
 }
-
 /* AVISO DE WHATSAPP */
 .whatsapp-info{
   margin:0 0 24px;
@@ -98,28 +85,23 @@ body{
   font-size:.95rem;
   line-height:1.5
 }
-
 .whatsapp-info strong{
   font-weight:800
 }
-
 .whatsapp-info a{
   color:#15803d;
   font-weight:800;
   text-decoration:none
 }
-
 .whatsapp-info a:hover{
   text-decoration:underline
 }
-
 .controls{
   display:grid;
   grid-template-columns:minmax(240px,1fr) 180px 180px;
   gap:10px;
   margin:20px 0 26px
 }
-
 input,
 select{
   width:100%;
@@ -132,12 +114,10 @@ select{
   color:var(--text);
   outline:none
 }
-
 input:focus,
 select:focus{
   border-color:#9ca3af
 }
-
 .summary{
   display:flex;
   justify-content:space-between;
@@ -145,14 +125,12 @@ select:focus{
   color:var(--muted);
   font-size:.92rem
 }
-
 .grid{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:16px;
   padding-bottom:48px
 }
-
 .card{
   background:var(--card);
   border:1px solid var(--line);
@@ -162,7 +140,6 @@ select:focus{
   display:flex;
   flex-direction:column
 }
-
 .photo{
   aspect-ratio:1;
   background:#eef1f5;
@@ -171,18 +148,15 @@ select:focus{
   justify-content:center;
   overflow:hidden
 }
-
 .photo img{
   width:100%;
   height:100%;
   object-fit:contain
 }
-
 .placeholder{
   font-size:2rem;
   color:#9ca3af
 }
-
 .body{
   padding:15px;
   display:flex;
@@ -190,18 +164,15 @@ select:focus{
   gap:8px;
   flex:1
 }
-
 .name{
   font-weight:750;
   line-height:1.25;
   min-height:2.5em
 }
-
 .ref{
   font-size:.78rem;
   color:var(--muted)
 }
-
 .bottom{
   margin-top:auto;
   display:flex;
@@ -210,25 +181,20 @@ select:focus{
   gap:10px;
   padding-top:10px
 }
-
 .price{
   font-size:1.25rem;
   font-weight:900
 }
-
 .stock{
   font-size:.78rem;
   font-weight:750
 }
-
 .available{
   color:var(--ok)
 }
-
 .sold{
   color:var(--danger)
 }
-
 .empty{
   grid-column:1/-1;
   text-align:center;
@@ -238,62 +204,50 @@ select:focus{
   border:1px dashed var(--line);
   border-radius:16px
 }
-
 footer{
   border-top:1px solid var(--line);
   padding:24px 0;
   color:var(--muted);
   font-size:.85rem
 }
-
 @media(max-width:1000px){
   .grid{
     grid-template-columns:repeat(3,minmax(0,1fr))
   }
 }
-
 @media(max-width:700px){
   .controls{
     grid-template-columns:1fr
   }
-
   .grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:12px
   }
-
   .wrap{
     padding:0 12px
   }
-
   .brand{
     font-size:1.1rem;
     gap:10px
   }
-
   .brand img{
     height:36px
   }
 }
-
 @media(max-width:430px){
   .grid{
     grid-template-columns:1fr
   }
-
   .brand{
     font-size:1rem
   }
-
   .brand img{
     height:32px
   }
 }
 </style>
 </head>
-
 <body>
-
 <header class="top">
   <div class="wrap nav">
     <div class="brand">
@@ -302,14 +256,11 @@ footer{
     </div>
   </div>
 </header>
-
 <main class="wrap">
-
   <section class="hero">
     <h1>Catálogo de productos</h1>
     <p>Consulta nuestros productos, precios y disponibilidad.</p>
   </section>
-
   <!-- AVISO DE WHATSAPP -->
   <div class="whatsapp-info">
     📲 <strong>¿Necesitas más información?</strong>
@@ -320,7 +271,6 @@ footer{
       624 32 43 84
     </a>
   </div>
-
   <section class="controls">
     <input
       id="search"
@@ -328,65 +278,52 @@ footer{
       placeholder="Buscar por nombre o referencia…"
       autocomplete="off"
     >
-
     <select id="stock">
       <option value="all">Todos los productos</option>
       <option value="available">En stock</option>
       <option value="sold">Agotados</option>
     </select>
-
     <select id="sort">
+      <option value="dateDesc">Más recientes</option>
+      <option value="dateAsc">Más antiguos</option>
       <option value="name">Nombre A-Z</option>
       <option value="priceAsc">Precio: menor a mayor</option>
       <option value="priceDesc">Precio: mayor a menor</option>
       <option value="stock">Disponibilidad</option>
     </select>
   </section>
-
   <div class="summary">
     <span id="count">Cargando catálogo…</span>
     <span>Precios de venta</span>
   </div>
-
   <section id="grid" class="grid" aria-live="polite"></section>
-
 </main>
-
 <footer>
   <div class="wrap">
     © <span id="year"></span> ReBlueOutlet · Catálogo online
   </div>
 </footer>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
-
 <script>
 (() => {
-
   const {createClient} = window.supabase;
-
   const client = createClient(
     SUPABASE_CONFIG.url,
     SUPABASE_CONFIG.publishableKey
   );
-
   const euro = new Intl.NumberFormat('es-ES', {
     style:'currency',
     currency:'EUR'
   });
-
   const grid = document.getElementById('grid');
   const search = document.getElementById('search');
   const stock = document.getElementById('stock');
   const sort = document.getElementById('sort');
   const count = document.getElementById('count');
-
   document.getElementById('year').textContent =
     new Date().getFullYear();
-
   let products = [];
-
   const esc = v =>
     String(v ?? '').replace(
       /[&<>"']/g,
@@ -398,18 +335,12 @@ footer{
         "'":'&#039;'
       }[c])
     );
-
   function render(){
-
     const q = search.value.trim().toLowerCase();
-
     let list = products.filter(p => {
-
       const text =
         `${p.producto || ''} ${p.codigo || ''}`.toLowerCase();
-
       const okStock = Number(p.stock) > 0;
-
       return (
         (!q || text.includes(q)) &&
         (
@@ -418,38 +349,46 @@ footer{
           (stock.value === 'sold' && !okStock)
         )
       );
-
     });
-
-    list.sort((a,b) =>
-      sort.value === 'priceAsc'
-        ? Number(a.precio_venta || 0) -
-          Number(b.precio_venta || 0)
-
-        : sort.value === 'priceDesc'
-        ? Number(b.precio_venta || 0) -
-          Number(a.precio_venta || 0)
-
-        : sort.value === 'stock'
-        ? Number(b.stock || 0) -
-          Number(a.stock || 0)
-
-        : String(a.producto || '').localeCompare(
-            String(b.producto || ''),
-            'es',
-            {sensitivity:'base'}
-          )
-    );
-
+    /* ORDENACIÓN */
+    list.sort((a,b) => {
+      /* Más recientes primero */
+      if(sort.value === 'dateDesc'){
+        return new Date(b.created_at || 0) -
+               new Date(a.created_at || 0);
+      }
+      /* Más antiguos primero */
+      if(sort.value === 'dateAsc'){
+        return new Date(a.created_at || 0) -
+               new Date(b.created_at || 0);
+      }
+      /* Precio menor a mayor */
+      if(sort.value === 'priceAsc'){
+        return Number(a.precio_venta || 0) -
+               Number(b.precio_venta || 0);
+      }
+      /* Precio mayor a menor */
+      if(sort.value === 'priceDesc'){
+        return Number(b.precio_venta || 0) -
+               Number(a.precio_venta || 0);
+      }
+      /* Disponibilidad */
+      if(sort.value === 'stock'){
+        return Number(b.stock || 0) -
+               Number(a.stock || 0);
+      }
+      /* Nombre A-Z */
+      return String(a.producto || '').localeCompare(
+        String(b.producto || ''),
+        'es',
+        {sensitivity:'base'}
+      );
+    });
     count.textContent =
       `${list.length} producto${list.length === 1 ? '' : 's'}`;
-
     grid.innerHTML = list.length
-
       ? list.map(p => {
-
           const available = Number(p.stock) > 0;
-
           const image = p.imagen_url
             ? `<img
                 src="${esc(p.imagen_url)}"
@@ -457,88 +396,62 @@ footer{
                 loading="lazy"
               >`
             : '<div class="placeholder">📦</div>';
-
           return `
             <article class="card">
-
               <div class="photo">
                 ${image}
               </div>
-
               <div class="body">
-
                 <div class="name">
                   ${esc(p.producto)}
                 </div>
-
                 <div class="ref">
                   Ref. ${esc(p.codigo || '—')}
                 </div>
-
                 <div class="bottom">
-
                   <div class="price">
                     ${euro.format(Number(p.precio_venta || 0))}
                   </div>
-
                   <div class="stock ${available ? 'available' : 'sold'}">
                     ${available ? 'En stock' : 'Agotado'}
                   </div>
-
                 </div>
-
               </div>
-
             </article>
           `;
-
         }).join('')
-
       : `
         <div class="empty">
           No se han encontrado productos con esos filtros.
         </div>
       `;
   }
-
   async function init(){
-
     const {data,error} = await client
       .from('productos')
       .select(
-        'id,producto,codigo,stock,precio_venta,imagen_url,visible'
+        'id,producto,codigo,stock,precio_venta,imagen_url,visible,created_at'
       )
       .eq('visible',true);
-
     if(error){
-
       console.error(error);
-
       count.textContent =
         'Error al cargar el catálogo';
-
       grid.innerHTML = `
         <div class="empty">
           No se pudo conectar con el catálogo online.
         </div>
       `;
-
       return;
     }
-
     products = data || [];
-
     render();
   }
-
   search.addEventListener('input', render);
   stock.addEventListener('change', render);
   sort.addEventListener('change', render);
-
   init();
-
 })();
 </script>
-
 </body>
 </html>
